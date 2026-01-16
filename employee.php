@@ -1,12 +1,12 @@
 <?php 
-
 session_start(); //start php session 
-
 require 'connection.php'; //include ang database connectionfile 
-
 $connect = Connect(); //call function 
 
- 
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
 
 function h($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); } //prevent XSS 
 
@@ -14,11 +14,17 @@ function h($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); } //p
 
 // fetch once 
 
-$stmt = $connect->prepare("SELECT * FROM tbl_employee_info"); 
+$search = trim($_GET['search'] ?? '');
 
-$stmt->execute(); 
+if ($search !== '') {
+    $stmt = $connect->prepare("SELECT * FROM tbl_employee_info WHERE firstname LIKE ?");
+    $stmt->execute(['%' . $search . '%']);
+} else {
+    $stmt = $connect->prepare("SELECT * FROM tbl_employee_info");
+    $stmt->execute();
+}
 
-$rows = $stmt->fetchAll(); 
+$rows = $stmt->fetchAll();
 
  
 
@@ -42,10 +48,6 @@ unset($_SESSION['toast']);
 
   <title>Employees</title> 
 
- 
-
-//boothstrap framework for styling  
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"> 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script> 
@@ -64,9 +66,13 @@ unset($_SESSION['toast']);
 
  
 
+
 <h2 class="text-center text-primary mt-3">Employee's Information</h2> 
 
- 
+ <form method="GET" action="employee.php">
+    <input type="text" name="search" placeholder="Search username..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+    <button type="submit">Search</button>
+</form>
 
 <!-- TOAST CONTAINER --> 
 
