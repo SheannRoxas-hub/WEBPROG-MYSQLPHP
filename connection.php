@@ -5,7 +5,7 @@ function Connect(): PDO
 { 
     // Palitan mo ito ng DB credentials mo 
     $host = "localhost"; 
-    $db   = "db_employee2"; 
+    $db   = "db_employee"; 
     $user = "root"; 
     $pass = ""; 
     $charset = "utf8mb4"; 
